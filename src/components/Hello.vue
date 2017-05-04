@@ -1,36 +1,54 @@
 <template>
   <div class="hello">
     <h1 v-text="msg"></h1>
-    <input /><button v-on:click="additem">add</button>
+    <input v-model="newItem" @keyup.enter="additem"/>
     <ul v-for="item in items">
-      <li v-bind:class="{done:item.isDone}"  >{{item.item}}</li>
+      <li v-bind:class="{done:item.isDone}" v-on:click="setDone(item)" >{{item.item}}
+      <button v-on:click="deleteItem(item)">delete</button></li>
     </ul>
+    <Component-a message="OK"></Component-a>
   </div>
 </template>
 
 <script>
+import ComponentA from  './test'
+  import Store from '../store'
 export default {
   name: 'hello',
   data () {
     return {
       msg: 'this is a todoList',
-      items:[
-        {
-            item:'wash cloth',
-            isDone:false
-        },
-        {
-          item:'play football',
-          isDone:true
-        }
-      ]
-
+      items:Store.fetch(),
+      newItem:''
     }
   },
-  methods(){
+
+  components:{ComponentA},
+
+  watch:{
+    items:{
+        handler:function (items) {
+          Store.save(items);
+        },
+      deep:true
+    }
+  },
+
+  methods :{
         additem:function () {
-          alert('hha');
+            this.items.push({
+              item:this.newItem,
+              isDone:false
+            })
+          this.newItem='';
+        },
+        setDone:function (item) {
+           item.isDone= !item.isDone;
+        },
+        deleteItem:function (item) {
+          this.items.shift(item);
         }
+
   }
 }
 </script>
